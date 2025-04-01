@@ -1,9 +1,6 @@
 package poller
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/vartanbeno/go-reddit/v2/reddit"
 )
 
@@ -35,19 +32,4 @@ func MakePosts(redditPosts ...*reddit.Post) []Post {
 		posts[i] = MakePost(redditPosts[i])
 	}
 	return Posts(posts)
-}
-
-func (p *Posts) MarshalJSON() ([]byte, error) {
-	type Alias Posts
-
-	bytes, err := json.Marshal(&struct {
-		*Alias
-	}{
-		Alias: (*Alias)(p),
-	})
-
-	if err != nil {
-		return nil, fmt.Errorf("could not marshal posts: %s", err)
-	}
-	return bytes, nil
 }
