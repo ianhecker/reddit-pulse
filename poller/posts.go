@@ -7,19 +7,19 @@ import (
 type Post struct {
 	Subreddit   string
 	Title       string
-	Author      Author
+	Author      *Author
 	Score       int
 	UpvoteRatio float32
 	Permalink   string
 }
 
 func MakePost(p *reddit.Post) Post {
-	author := Author{Name: p.Author, ID: p.AuthorID}
+	author := MakeAuthor(p.Author, p.ID)
 
 	return Post{
 		Subreddit:   p.SubredditName,
 		Title:       p.Title,
-		Author:      author,
+		Author:      &author,
 		Score:       p.Score,
 		UpvoteRatio: p.UpvoteRatio,
 		Permalink:   p.Permalink,

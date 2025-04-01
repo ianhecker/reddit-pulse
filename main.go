@@ -14,6 +14,11 @@ import (
 	"github.com/ianhecker/reddit-pulse/poller"
 )
 
+type Out struct {
+	Posts      poller.Posts
+	TopAuthors []*poller.Author
+}
+
 func main() {
 	ec := errorChecker.NewErrorChecker()
 
@@ -30,18 +35,29 @@ func main() {
 	userAgent := reddit.WithUserAgent(cfg.UserAgent)
 	tokenURL := reddit.WithTokenURL("https://www.reddit.com/api/v1/access_token")
 
-	poller, err := poller.NewPoller(credentials, userAgent, tokenURL)
+	postPoller, err := poller.NewPoller(credentials, userAgent, tokenURL)
 	ec.WithMessage("could not create poller").CheckErr(err)
 
 	ctx := context.Background()
 
 	for {
-		poll := poller.TopPosts(ctx, "golang", 1)
+		poll := postPoller.TopPosts(ctx, "golang", 100)
 		ec.WithMessage("error polling").CheckErr(poll.Error)
 
 		fmt.Println("polled posts")
 
-		bytes, err := json.MarshalIndent(poll.Posts, "", " ")
+		mostPosts := poller.MakeAuthors()
+		mostPosts.CountPosts(poll.Posts)
+
+		fmt.Println("counted posts for authors")
+
+		topAuthors := mostPosts.TopAuthorsForCount(100)
+
+		fmt.Println("fetched top authors")
+
+		out := Out{Posts: poll.Posts, TopAuthors: topAuthors}
+
+		bytes, err := json.MarshalIndent(out, "", " ")
 		ec.WithMessage("could not marshal posts").CheckErr(err)
 
 		fmt.Println("marshaled posts")
