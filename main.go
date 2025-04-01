@@ -67,6 +67,10 @@ func main() {
 		ec.WithMessage("could not write to file").CheckErr(err)
 		log.Log("wrote to file: %s", OutputFileName)
 
+		remaining, used, seconds, err := poll.Response.GetRateLimits()
+		ec.WithMessage("error converting X-RateLimit from header").CheckErr(err)
+		log.Log("rate limits: requests remaining: %d, used: %d, seconds left: %d", remaining, used, seconds)
+
 		log.Log("sleeping for duration: %s", SleepDuration)
 		time.Sleep(SleepDuration)
 	}
