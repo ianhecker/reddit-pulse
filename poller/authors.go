@@ -1,6 +1,8 @@
 package poller
 
-import "sort"
+import (
+	"sort"
+)
 
 type Authors struct {
 	AuthorsMap map[AuthorID]*Author
@@ -13,16 +15,14 @@ func MakeAuthors() Authors {
 
 func (a Authors) CountPosts(posts Posts) {
 	for _, post := range posts {
-
 		ID := post.Author.ID
 
 		author, exists := a.AuthorsMap[ID]
 		if !exists {
-
 			a.AuthorsMap[ID] = post.Author
-			author, _ = a.AuthorsMap[ID]
+			author = post.Author
 		}
-		author.TotalPosts += 1
+		*author.TotalPosts++
 	}
 }
 
@@ -47,7 +47,7 @@ func (a Authors) TopAuthorsForCount(count int) []*Author {
 			return x.ID < y.ID
 		}
 
-		return x.TotalPosts > y.TotalPosts
+		return *x.TotalPosts > *y.TotalPosts
 	})
 
 	return authors[:count]
