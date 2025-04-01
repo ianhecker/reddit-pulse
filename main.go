@@ -45,6 +45,8 @@ func main() {
 	userAgent := reddit.WithUserAgent(cfg.UserAgent)
 	tokenURL := reddit.WithTokenURL("https://www.reddit.com/api/v1/access_token")
 
+	subreddit := cfg.Subreddit
+
 	postPoller, err := poller.NewPoller(credentials, userAgent, tokenURL)
 	ec.WithMessage("could not create poller").CheckErr(err)
 
@@ -65,7 +67,7 @@ func main() {
 					fmt.Printf("Worker %d: error waiting for limiter: %v\n", workerID, err)
 					return
 				}
-				delay := Poll(ctx, workerID, credentials, postPoller)
+				delay := Poll(ctx, workerID, postPoller, subreddit)
 				log.Log("worker %d returned from polling", workerID)
 
 				newLimit := rate.Every(delay)
@@ -80,8 +82,8 @@ func main() {
 func Poll(
 	ctx context.Context,
 	workerID int,
-	credentials reddit.Credentials,
 	postPoller *poller.Poller,
+	subreddit string,
 ) time.Duration {
 	ec := errorChecker.NewErrorChecker()
 	log := logger.MakeLogger()
@@ -89,9 +91,9 @@ func Poll(
 
 	log.Log("worker #%d started polling", workerID)
 
-	poll := postPoller.TopPosts(ctx, "golang", PostCount)
+	poll := postPoller.TopPosts(ctx, subreddit, PostCount)
 	ec.WithMessage("error polling").CheckErr(poll.Error)
-	log.Log("----polled top %d posts", PostCount)
+	log.Log("----polled top %d posts for subreddit: %s", PostCount, subreddit)
 
 	mostPosts := poller.MakeAuthors()
 	mostPosts.CountPosts(poll.Posts)

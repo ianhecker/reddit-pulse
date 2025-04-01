@@ -10,9 +10,10 @@ import (
 type Config struct {
 	ClientID     string
 	ClientSecret string
+	Password     string
+	Subreddit    string
 	UserAgent    string
 	Username     string
-	Password     string
 }
 
 func NewConfig() (*Config, error) {
@@ -32,17 +33,22 @@ func NewConfig() (*Config, error) {
 		return nil, err
 	}
 
+	err = config.GetStringFromENV(&config.Password, "PASSWORD")
+	if err != nil {
+		return nil, err
+	}
+
+	err = config.GetStringFromENV(&config.Subreddit, "SUBREDDIT")
+	if err != nil {
+		return nil, err
+	}
+
 	err = config.GetStringFromENV(&config.UserAgent, "USER_AGENT")
 	if err != nil {
 		return nil, err
 	}
 
 	err = config.GetStringFromENV(&config.Username, "USER_NAME")
-	if err != nil {
-		return nil, err
-	}
-
-	err = config.GetStringFromENV(&config.Password, "PASSWORD")
 	if err != nil {
 		return nil, err
 	}
