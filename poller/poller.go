@@ -15,13 +15,18 @@ type Poll struct {
 }
 
 type Poller struct {
-	Client             *reddit.Client
-	AvailableRequests  int
-	TimeFrameInSeconds int
-	PollingInterval    time.Duration
+	Client   *reddit.Client
+	Interval time.Duration
 }
 
 type PollFunc func(ctx context.Context) Poll
+
+func CalculatePollingRate(requestsRemaining int, secondsRemaining int) time.Duration {
+	timeWindow := time.Duration(secondsRemaining) * time.Second
+	delay := timeWindow / time.Duration(requestsRemaining)
+
+	return delay
+}
 
 func NewPoller(
 	credentials reddit.Credentials,
@@ -31,20 +36,14 @@ func NewPoller(
 	if err != nil {
 		return nil, fmt.Errorf("could not make reddit client: %s", err)
 	}
-	return NewPollerFromRaw(client, 60, 60, time.Duration(1*time.Second)), nil
+	return NewPollerFromRaw(client), nil
 }
 
 func NewPollerFromRaw(
 	client *reddit.Client,
-	availableRequests int,
-	timeFrameInSeconds int,
-	pollingInterval time.Duration,
 ) *Poller {
 	return &Poller{
-		Client:             client,
-		AvailableRequests:  availableRequests,
-		TimeFrameInSeconds: timeFrameInSeconds,
-		PollingInterval:    pollingInterval,
+		Client: client,
 	}
 }
 

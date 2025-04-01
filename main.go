@@ -71,7 +71,10 @@ func main() {
 		ec.WithMessage("error converting X-RateLimit from header").CheckErr(err)
 		log.Log("rate limits: requests remaining: %d, used: %d, seconds left: %d", remaining, used, seconds)
 
-		log.Log("sleeping for duration: %s", SleepDuration)
+		delay := poller.CalculatePollingRate(remaining, seconds)
+		log.Log("calulated polling delay to: %s", delay)
+
+		log.Log("sleeping for duration: %s", delay)
 		time.Sleep(SleepDuration)
 	}
 }
