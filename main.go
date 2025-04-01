@@ -46,7 +46,7 @@ func main() {
 
 		fmt.Println("marshaled posts")
 
-		err = os.WriteFile("subreddit.json", bytes, 0644)
+		err = os.WriteFile("output.json", bytes, 0644)
 		ec.WithMessage("could not write to file").CheckErr(err)
 
 		fmt.Println("wrote to file")
