@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/vartanbeno/go-reddit/v2/reddit"
 
@@ -32,17 +33,31 @@ func main() {
 
 	ctx := context.Background()
 
-	posts, response, err := poller.TopPosts(ctx, "golang", 3)
-	ec.WithMessage("error fetching posts").CheckErr(err)
+	for {
+		poll := poller.TopPosts(ctx, "golang", 1)
+		if poll.Error != nil {
+			fmt.Errorf("error fetching top posts: %s", err)
+			continue
+		}
 
-	remaining, used, seconds, err := response.GetRateLimits()
-	ec.WithMessage("error getting rate limits").CheckErr(err)
+		bytes, err := poll.Posts.MarshalJSON()
+		ec.WithMessage("could not marshal posts").CheckErr(err)
 
-	fmt.Printf("Remaining Requests: %d\n", remaining)
-	fmt.Printf("Total Requests Used: %d\n", used)
-	fmt.Printf("Seconds unti Reset: %d\n", seconds)
+		fmt.Println(string(bytes))
 
-	for _, post := range posts {
-		fmt.Printf("subreddit[%s] title:%s score:%d \nurl:%s\n", post.SubredditName, post.Title, post.Score, post.Permalink)
+		time.Sleep(1 * time.Second)
 	}
+
+	// ec.WithMessage("error fetching posts").CheckErr(err)
+
+	// remaining, used, seconds, err := response.GetRateLimits()
+	// ec.WithMessage("error getting rate limits").CheckErr(err)
+
+	// fmt.Printf("Remaining Requests: %d\n", remaining)
+	// fmt.Printf("Total Requests Used: %d\n", used)
+	// fmt.Printf("Seconds unti Reset: %d\n", seconds)
+
+	// for _, post := range posts {
+	// 	fmt.Printf("subreddit[%s] title:%s score:%d \nurl:%s\n", post.SubredditName, post.Title, post.Score, post.Permalink)
+	// }
 }

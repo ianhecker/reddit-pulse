@@ -8,6 +8,11 @@ import (
 	"github.com/vartanbeno/go-reddit/v2/reddit"
 )
 
+func NewResponse(r *reddit.Response) *Response {
+	response := Response(*r)
+	return &response
+}
+
 type Response reddit.Response
 
 func (r Response) RequestsUsed() (int, error) {
