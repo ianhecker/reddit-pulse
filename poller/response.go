@@ -48,3 +48,27 @@ func (r Response) SecondsUntilReset() (int, error) {
 	}
 	return n, nil
 }
+
+func (r Response) GetRateLimits() (
+	remaining int,
+	used int,
+	seconds int,
+	err error,
+) {
+	remaining, err = r.RequestsRemaining()
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	used, err = r.RequestsUsed()
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	seconds, err = r.SecondsUntilReset()
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	return remaining, used, seconds, nil
+}

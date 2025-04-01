@@ -35,17 +35,11 @@ func main() {
 	posts, response, err := poller.TopPosts(ctx, "golang", 3)
 	ec.WithMessage("error fetching posts").CheckErr(err)
 
-	remaining, err := response.RequestsRemaining()
-	ec.WithMessage("error getting remaining requests").CheckErr(err)
-
-	requests, err := response.RequestsUsed()
-	ec.WithMessage("error getting total requests").CheckErr(err)
-
-	seconds, err := response.SecondsUntilReset()
-	ec.WithMessage("error getting remaining seconds").CheckErr(err)
+	remaining, used, seconds, err := response.GetRateLimits()
+	ec.WithMessage("error getting rate limits").CheckErr(err)
 
 	fmt.Printf("Remaining Requests: %d\n", remaining)
-	fmt.Printf("Total Requests Used: %d\n", requests)
+	fmt.Printf("Total Requests Used: %d\n", used)
 	fmt.Printf("Seconds unti Reset: %d\n", seconds)
 
 	for _, post := range posts {
