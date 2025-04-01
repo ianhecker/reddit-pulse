@@ -59,7 +59,7 @@ func (p Poller) TopPosts(
 		},
 		Time: "all",
 	}
-	posts, response, err := p.Client.Subreddit.TopPosts(ctx, "golang", options)
+	posts, response, err := p.Client.Subreddit.TopPosts(ctx, subreddit, options)
 	if err != nil {
 		return Poll{
 			Posts:    nil,
